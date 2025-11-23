@@ -5,7 +5,7 @@ import dataclasses
 from functools import partial
 import concurrent.futures
 import os
-from typing import Dict, Optional, List, Union
+from typing import Dict, Optional, List, Union, Tuple, Any
 import numpy as np
 from retry import retry
 from transformers import (
