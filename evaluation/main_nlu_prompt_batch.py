@@ -84,8 +84,13 @@ if __name__ == "__main__":
 
     out_dir = "./outputs_nlu"
     metric_dir = "./metrics_nlu"
+    debug_dir = "./debug_nlu"
     os.makedirs(out_dir, exist_ok=True)
     os.makedirs(metric_dir, exist_ok=True)
+    os.makedirs(debug_dir, exist_ok=True)
+
+    # Debug: collect first 5 outputs per dataset
+    debug_outputs = []
 
     # Load Prompt
     TASK_TYPE_TO_PROMPT = get_prompt(prompt_lang)
@@ -199,6 +204,7 @@ if __name__ == "__main__":
                 # zero-shot inference
                 prompts, labels = [], []
                 count = 0
+                debug_count = 0  # Track debug samples for this dataset
                 with torch.inference_mode():
                     for e, sample in tqdm(enumerate(test_dset), total=len(test_dset)):
                         if e < len(preds):
@@ -223,6 +229,36 @@ if __name__ == "__main__":
                                 inputs.append(prompt_text)
                                 preds.append(hyp)
                                 golds.append(label)
+
+                                # Debug: save first 5 outputs per dataset
+                                if debug_count < 5:
+                                    gold_label_name = (
+                                        label_names[label]
+                                        if isinstance(label, int)
+                                        else label
+                                    )
+                                    pred_label_name = (
+                                        label_names[hyp]
+                                        if isinstance(hyp, int)
+                                        and hyp < len(label_names)
+                                        else hyp
+                                    )
+                                    debug_outputs.append(
+                                        {
+                                            "dataset": dset_subset,
+                                            "prompt_id": prompt_id,
+                                            "sample_idx": debug_count,
+                                            "input": prompt_text[
+                                                :500
+                                            ],  # Truncate for readability
+                                            "pred_raw": hyp,
+                                            "pred_label": pred_label_name,
+                                            "gold_raw": label,
+                                            "gold_label": gold_label_name,
+                                        }
+                                    )
+                                    debug_count += 1
+
                             prompts, labels = [], []
                             count += 1
 
@@ -234,6 +270,35 @@ if __name__ == "__main__":
                             inputs.append(prompt_text)
                             preds.append(hyp)
                             golds.append(label)
+
+                            # Debug: save first 5 outputs per dataset
+                            if debug_count < 5:
+                                gold_label_name = (
+                                    label_names[label]
+                                    if isinstance(label, int)
+                                    else label
+                                )
+                                pred_label_name = (
+                                    label_names[hyp]
+                                    if isinstance(hyp, int) and hyp < len(label_names)
+                                    else hyp
+                                )
+                                debug_outputs.append(
+                                    {
+                                        "dataset": dset_subset,
+                                        "prompt_id": prompt_id,
+                                        "sample_idx": debug_count,
+                                        "input": prompt_text[
+                                            :500
+                                        ],  # Truncate for readability
+                                        "pred_raw": hyp,
+                                        "pred_label": pred_label_name,
+                                        "gold_raw": label,
+                                        "gold_label": gold_label_name,
+                                    }
+                                )
+                                debug_count += 1
+
                         prompts, labels = [], []
 
                 # partial saving
@@ -277,4 +342,13 @@ if __name__ == "__main__":
     pd.DataFrame(metrics).reset_index().to_csv(
         f'{metric_dir}/nlu_results_{prompt_lang}_{MODEL.split("/")[-1]}.csv',
         index=False,
+    )
+
+    # Save debug outputs to CSV
+    pd.DataFrame(debug_outputs).to_csv(
+        f'{debug_dir}/debug_first5_{prompt_lang}_{MODEL.split("/")[-1]}.csv',
+        index=False,
+    )
+    print(
+        f"Debug outputs saved to {debug_dir}/debug_first5_{prompt_lang}_{MODEL.split('/')[-1]}.csv"
     )
