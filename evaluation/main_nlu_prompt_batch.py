@@ -222,10 +222,10 @@ if __name__ == "__main__":
 
                         # Batch Inference
                         if len(prompts) == BATCH_SIZE:
-                            hyps = model_runner.predict_classification(
+                            hyps, raw_responses = model_runner.predict_classification(
                                 prompts, label_names, is_thinking=IS_THINKING
                             )
-                            for prompt_text, hyp, label in zip(prompts, hyps, labels):
+                            for prompt_text, hyp, label, raw_resp in zip(prompts, hyps, labels, raw_responses):
                                 inputs.append(prompt_text)
                                 preds.append(hyp)
                                 golds.append(label)
@@ -240,8 +240,9 @@ if __name__ == "__main__":
                                     pred_label_name = (
                                         label_names[hyp]
                                         if isinstance(hyp, int)
+                                        and hyp >= 0
                                         and hyp < len(label_names)
-                                        else hyp
+                                        else "NO_MATCH"
                                     )
                                     debug_outputs.append(
                                         {
@@ -251,9 +252,10 @@ if __name__ == "__main__":
                                             "input": prompt_text[
                                                 :500
                                             ],  # Truncate for readability
-                                            "pred_raw": hyp,
+                                            "model_raw_output": raw_resp[:300],  # Actual model output
+                                            "pred_idx": hyp,
                                             "pred_label": pred_label_name,
-                                            "gold_raw": label,
+                                            "gold_idx": label,
                                             "gold_label": gold_label_name,
                                         }
                                     )
@@ -263,10 +265,10 @@ if __name__ == "__main__":
                             count += 1
 
                     if len(prompts) > 0:
-                        hyps = model_runner.predict_classification(
+                        hyps, raw_responses = model_runner.predict_classification(
                             prompts, label_names, is_thinking=IS_THINKING
                         )
-                        for prompt_text, hyp, label in zip(prompts, hyps, labels):
+                        for prompt_text, hyp, label, raw_resp in zip(prompts, hyps, labels, raw_responses):
                             inputs.append(prompt_text)
                             preds.append(hyp)
                             golds.append(label)
@@ -280,8 +282,10 @@ if __name__ == "__main__":
                                 )
                                 pred_label_name = (
                                     label_names[hyp]
-                                    if isinstance(hyp, int) and hyp < len(label_names)
-                                    else hyp
+                                    if isinstance(hyp, int)
+                                    and hyp >= 0
+                                    and hyp < len(label_names)
+                                    else "NO_MATCH"
                                 )
                                 debug_outputs.append(
                                     {
@@ -291,9 +295,10 @@ if __name__ == "__main__":
                                         "input": prompt_text[
                                             :500
                                         ],  # Truncate for readability
-                                        "pred_raw": hyp,
+                                        "model_raw_output": raw_resp[:300],  # Actual model output
+                                        "pred_idx": hyp,
                                         "pred_label": pred_label_name,
-                                        "gold_raw": label,
+                                        "gold_idx": label,
                                         "gold_label": gold_label_name,
                                     }
                                 )

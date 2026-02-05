@@ -301,6 +301,7 @@ class APIModel(AbsModel):
         ) as executor:
             results = list(tqdm(executor.map(_fn, inputs), total=len(prompts)))
 
+        raw_responses = []
         for response, _prompt in zip(results, prompts):
             selected_idx = -1
             response_lower = response.strip().lower()
@@ -318,8 +319,9 @@ class APIModel(AbsModel):
                     selected_idx = i
                     break
             hyps.append(selected_idx)
+            raw_responses.append(response.strip())
         assert len(prompts) == len(hyps)
-        return hyps
+        return hyps, raw_responses
 
     def predict_generation(
         self, prompts: List[Union[str, ChatMessage]], **kwargs
@@ -421,7 +423,8 @@ class HFModel(AbsModel):
                 .numpy()
             )
         result = np.argmax(np.stack(probs, axis=-1), axis=-1).tolist()
-        return result
+        # Return empty raw responses for local models (logprob-based classification)
+        return result, ["[logprob-based]"] * len(prompts)
 
     def _get_terminator(self):
         eos_tokens = ["<|eot_id|>", "<|im_start|>", "<|im_end|>"]
