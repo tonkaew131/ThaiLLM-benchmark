@@ -307,9 +307,13 @@ class APIModel(AbsModel):
             response_lower = response.strip().lower()
 
             if is_thinking:
-                response_lower = re.sub(
-                    r"<think>.*?</think>", "", response_lower, flags=re.DOTALL
-                ).strip()
+                # TODO: Split </think> instead of parseing open/close tag
+                if "</think>" in response_lower:
+                    response_lower = response_lower.split("</think>")[-1].strip()
+
+                # response_lower = re.sub(
+                #     r"<think>.*?</think>", "", response_lower, flags=re.DOTALL
+                # ).strip()
 
             for i, label_name in enumerate(labels):
                 label_lower = label_name.strip().lower()
