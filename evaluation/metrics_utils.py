@@ -3,21 +3,11 @@ from pythainlp import word_tokenize
 from functools import partial
 
 """ Generation metrics """
-bleu = evaluate.load(
-    "/ist/users/athichal_intern/activation-error/ThaiLLM-benchmark/evaluate/metrics/bleu/bleu.py"
-)
-rouge = evaluate.load(
-    "/ist/users/athichal_intern/activation-error/ThaiLLM-benchmark/evaluate/metrics/rouge/rouge.py"
-)
-sacrebleu = evaluate.load(
-    "/ist/users/athichal_intern/activation-error/ThaiLLM-benchmark/evaluate/metrics/sacrebleu/sacrebleu.py"
-)
-chrf = evaluate.load(
-    "/ist/users/athichal_intern/activation-error/ThaiLLM-benchmark/evaluate/metrics/chrf/chrf.py"
-)
-meteor = evaluate.load(
-    "/ist/users/athichal_intern/activation-error/ThaiLLM-benchmark/evaluate/metrics/meteor/meteor.py"
-)
+bleu = evaluate.load("bleu")
+rouge = evaluate.load("rouge")
+sacrebleu = evaluate.load("sacrebleu")
+chrf = evaluate.load("chrf")
+meteor = evaluate.load("meteor")
 tokenizer = partial(word_tokenize, engine="newmm")
 
 
