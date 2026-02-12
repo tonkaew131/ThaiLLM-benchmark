@@ -36,7 +36,7 @@ anthropic_client = None
 def _call_openai(
     messages: List[Dict[str, str]],
     model_name: str,
-    max_tokens=200,
+    max_tokens=4096, # Change from 200 to 4096 (to allows thinking tokens)
     temperature=0.0,
     **kwargs,
 ):
@@ -306,14 +306,8 @@ class APIModel(AbsModel):
             selected_idx = -1
             response_lower = response.strip().lower()
 
-            if is_thinking:
-                # TODO: Split </think> instead of parseing open/close tag
-                if "</think>" in response_lower:
-                    response_lower = response_lower.split("</think>")[-1].strip()
-
-                # response_lower = re.sub(
-                #     r"<think>.*?</think>", "", response_lower, flags=re.DOTALL
-                # ).strip()
+            if is_thinking and "</think>" in response_lower:
+                response_lower = response_lower.split("</think>")[-1].strip()
 
             for i, label_name in enumerate(labels):
                 label_lower = label_name.strip().lower()
