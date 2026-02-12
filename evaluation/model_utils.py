@@ -36,7 +36,7 @@ anthropic_client = None
 def _call_openai(
     messages: List[Dict[str, str]],
     model_name: str,
-    max_tokens=4096, # Change from 200 to 4096 (to allows thinking tokens)
+    max_tokens=None,  # Change from 200 to None (to allows thinking tokens)
     temperature=0.0,
     **kwargs,
 ):
@@ -303,7 +303,7 @@ class APIModel(AbsModel):
 
         raw_responses = []
         for response, _prompt in zip(results, prompts):
-            if response is None: # When token ran out from thinking
+            if response is None:  # When token ran out from thinking
                 response = ""
 
             selected_idx = -1
