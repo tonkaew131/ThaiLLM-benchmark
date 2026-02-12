@@ -303,6 +303,9 @@ class APIModel(AbsModel):
 
         raw_responses = []
         for response, _prompt in zip(results, prompts):
+            if response is None: # When token ran out from thinking
+                response = ""
+
             selected_idx = -1
             response_lower = response.strip().lower()
 
