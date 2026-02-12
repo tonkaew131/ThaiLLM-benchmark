@@ -82,6 +82,7 @@ if __name__ == "__main__":
         OPENAI_COMPATIBLE = True
         IS_THINKING = sys.argv[6] == "true"
 
+    print("is thinking:", IS_THINKING)
     out_dir = "./outputs_nlu"
     metric_dir = "./metrics_nlu"
     debug_dir = "./debug_nlu"
